@@ -33,12 +33,11 @@ const checkForPtz = (camera) => {
 }
 
 //Show the caller which presets are available
+//https://hawkeye64.github.io/onvif-nvt/Ptz.html#getPresets
 app.get('/', async (req, res) => {
   try {
-    let camera = await getCameraInstance();
 
     let results = await camera.ptz.getPresets();
-    //console.log(JSON.stringify(results.data.GetPresetsResponse));
     let presets = results.data.GetPresetsResponse.Preset;
 
     let simpleDetails = presets.map(preset => {
@@ -51,10 +50,31 @@ app.get('/', async (req, res) => {
     res.json({
       availablePresets: simpleDetails
     });
+  } catch (err) {
+    throw err;
+  }
+});
+
+//Go to a specified preset
+//https://hawkeye64.github.io/onvif-nvt/Ptz.html#gotoPreset
+app.get('/gotoPreset', async (req, res) => {
+  try {
+    let presetToken = (req.query.hasOwnProperty('presetToken')) ? req.query.presetToken : false;
+
+    if (!presetToken) {
+      res.status(400).send('Missing required parameter: presetToken');
+    }
+
+    let camera = await getCameraInstance();
+    let results = camera.ptz.gotoPreset('', presetToken);
+
+    res.json(results);
 
   } catch (err) {
     throw err;
   }
+
+
 });
 
 //fire it up
