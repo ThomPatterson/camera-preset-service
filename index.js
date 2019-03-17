@@ -32,6 +32,10 @@ const checkForPtz = (camera) => {
   }
 }
 
+const logIt = (msg) => {
+  console.log(new Date() + ': ' + msg);
+}
+
 //Show the caller which presets are available
 //https://hawkeye64.github.io/onvif-nvt/Ptz.html#getPresets
 app.get('/', async (req, res) => {
@@ -60,15 +64,44 @@ app.get('/', async (req, res) => {
 app.get('/gotoPreset', async (req, res) => {
   try {
     let presetToken = (req.query.hasOwnProperty('presetToken')) ? req.query.presetToken : false;
+    let returnSeconds = (req.query.hasOwnProperty('returnSeconds')) ? parseInt(req.query.returnSeconds) : false;
 
     if (!presetToken) {
       return res.status(400).send('Missing required parameter: presetToken');
     }
 
-    let camera = await getCameraInstance();
-    let results = await camera.ptz.gotoPreset('', presetToken);
+    logIt(`Moving to preset: ${presetToken}`);
 
-    res.json(results);
+    let camera = await getCameraInstance();
+
+    let response = {};
+
+    //if returnSeconds was specified, have the camera return to its
+    //current position after that many seconds
+    if (!!returnSeconds) {
+      //figure out the current position
+      let statusResults = await camera.ptz.getStatus();
+      let curPosition = {
+        x: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.x,
+        y: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.y,
+        z: statusResults.data.GetStatusResponse.PTZStatus.Position.Zoom.$.x,
+      }
+
+      let msg = `Will return to ${JSON.stringify(curPosition)} in ${returnSeconds} seconds.`;
+      logIt(msg);
+      response.next = msg;
+
+      setTimeout(() => {
+        logIt(`Returning to ${JSON.stringify(curPosition)}`);
+        camera.ptz.absoluteMove('', curPosition)
+      }, returnSeconds * 1000)
+    }
+
+    //go to the specified preset
+    let results = await camera.ptz.gotoPreset('', presetToken);
+    response.status = "Success";
+
+    res.json(response);
 
   } catch (err) {
     return res.status(500).send(err);
