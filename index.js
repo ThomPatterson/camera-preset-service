@@ -41,6 +41,9 @@ const logIt = (msg) => {
 app.get('/', async (req, res) => {
   try {
 
+    logIt('Getting preset info');
+
+    let camera = await getCameraInstance();
     let results = await camera.ptz.getPresets();
     let presets = results.data.GetPresetsResponse.Preset;
 
