@@ -5,7 +5,9 @@ Modify [config.js](config.js) with the correct values for your camera.
 
 Run with `node index.js`.  This will create a server listening on port 8080.
 
-Check which presets you already have created on the camera.
+See [camera-preset-service](https://cloud.docker.com/u/thompatterson/repository/docker/thompatterson/camera-preset-service) on DockerHub to run this project in a container.
+
+#### Check which presets you already have created on the camera.
 ```
 $ curl -s "http://localhost:8080/" | jq
 {
@@ -26,7 +28,7 @@ $ curl -s "http://localhost:8080/" | jq
 }
 ```
 
-Specify a preset to move the camera to.
+#### Specify a preset to move the camera to.
 ```
 $ curl -s "http://localhost:8080/gotoPreset?presetToken=2" | jq
 {
@@ -34,7 +36,7 @@ $ curl -s "http://localhost:8080/gotoPreset?presetToken=2" | jq
 }
 ```
 
-Specify a preset to move the camera to and the number of seconds after which the camera will return to where it was prior.
+#### Specify a preset to move the camera to and the number of seconds after which the camera will return to where it was prior.
 ```
 $ curl -s "http://localhost:8080/gotoPreset?presetToken=1&returnSeconds=60" | jq
 {
