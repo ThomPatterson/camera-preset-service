@@ -1,0 +1,27 @@
+{
+  "name": "camera-preset-service",
+  "version": "0.0.1",
+  "description": "Set your ONVIF enabled camera to a specified preset via simple HTTP GET",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThomPatterson/camera-preset-service.git"
+  },
+  "keywords": [
+    "onvif",
+    "camera"
+  ],
+  "author": "Thom Patterson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ThomPatterson/camera-preset-service/issues"
+  },
+  "homepage": "https://github.com/ThomPatterson/camera-preset-service#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "onvif-nvt": "^0.2.14"
+  }
+}
