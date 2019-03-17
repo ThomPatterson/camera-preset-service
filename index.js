@@ -11,6 +11,10 @@ console.log(JSON.stringify(config, null, 2));
 //https://hawkeye64.github.io/onvif-nvt/index.html
 const OnvifManager = require('onvif-nvt');
 
+//global var to keep track of current position when return is requested
+let curPosition = null;
+let returnTimeout = null;
+
 //connect to the camera and return a 'camera' object
 //https://hawkeye64.github.io/onvif-nvt/Camera.html
 const getCameraInstance = async () => {
@@ -85,21 +89,27 @@ app.get('/gotoPreset', async (req, res) => {
     //if returnSeconds was specified, have the camera return to its
     //current position after that many seconds
     if (!!returnSeconds) {
-      //figure out the current position
-      let statusResults = await camera.ptz.getStatus();
-      let curPosition = {
-        x: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.x,
-        y: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.y,
-        z: statusResults.data.GetStatusResponse.PTZStatus.Position.Zoom.$.x,
+      //clear any existing timeout
+      clearTimeout(returnTimeout);
+
+      //only determine current position if it isn't already known
+      if (!curPosition) {
+        let statusResults = await camera.ptz.getStatus();
+        curPosition = {
+          x: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.x,
+          y: statusResults.data.GetStatusResponse.PTZStatus.Position.PanTilt.$.y,
+          z: statusResults.data.GetStatusResponse.PTZStatus.Position.Zoom.$.x,
+        }
       }
 
       let msg = `Will return to ${JSON.stringify(curPosition)} in ${returnSeconds} seconds.`;
       logIt(msg);
       response.next = msg;
 
-      setTimeout(() => {
+      returnTimeout = setTimeout(() => {
         logIt(`Returning to ${JSON.stringify(curPosition)}`);
-        camera.ptz.absoluteMove('', curPosition)
+        camera.ptz.absoluteMove('', curPosition);
+        curPosition = null;
       }, returnSeconds * 1000)
     }
 
