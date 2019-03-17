@@ -51,7 +51,7 @@ app.get('/', async (req, res) => {
       availablePresets: simpleDetails
     });
   } catch (err) {
-    throw err;
+    return res.status(500).send(err);
   }
 });
 
@@ -62,16 +62,16 @@ app.get('/gotoPreset', async (req, res) => {
     let presetToken = (req.query.hasOwnProperty('presetToken')) ? req.query.presetToken : false;
 
     if (!presetToken) {
-      res.status(400).send('Missing required parameter: presetToken');
+      return res.status(400).send('Missing required parameter: presetToken');
     }
 
     let camera = await getCameraInstance();
-    let results = camera.ptz.gotoPreset('', presetToken);
+    let results = await camera.ptz.gotoPreset('', presetToken);
 
     res.json(results);
 
   } catch (err) {
-    throw err;
+    return res.status(500).send(err);
   }
 
 
