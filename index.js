@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const config = process.env.hasOwnProperty('CONFIG') ? JSON.parse(process.env.CONFIG) : require('./config.js');
 
+console.log('Starting with the following config:');
+console.log(JSON.stringify(config, null, 2));
+
 //The meat behind this is the wonderful onvif-nvt package from Jeffrey Galbraith (Hawkeye64)
 //https://www.npmjs.com/package/onvif-nvt
 //anyone looking to understand this app should review his documentation at
